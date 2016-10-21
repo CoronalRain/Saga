@@ -5,9 +5,6 @@ import inflect
 from docx import Document
 from docx.shared import Inches
 
-email = "tpk.mindovermath@gmail.com"
-password = "Redshift1!"
-
 login_url = "https://mindovermathtutoring.teachworks.com/accounts/login"
 participants_url = "https://mindovermathtutoring.teachworks.com/participants"
 
@@ -59,7 +56,7 @@ class Lesson(object):
         self.topics = topics
 
 
-def main():
+def main(email, password):
     with requests.session() as session_requests:
         # Open the login page.
         response = session_requests.get(login_url)
@@ -196,4 +193,6 @@ def write_docx(students):
                   tutor.split()[0].strip()[0] + " " + tutor.split()[-1].strip() + ".docx")
 
 if __name__ == "__main__":
-    main()
+    email = input("Email address: ")
+    password = input("Password: ")
+    main(email, password)
