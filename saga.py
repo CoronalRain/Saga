@@ -19,11 +19,11 @@ participants_url = "https://mindovermathtutoring.teachworks.com/participants"
 
 # Find the main UI elements.
 if hasattr(sys, '_MEIPASS'):
-    ui_login_path = os.path.join(sys._MEIPASS, "login_window.ui")
-    ui_main_path = os.path.join(sys._MEIPASS, "main_window.ui")
+    ui_login_path = os.path.join(sys._MEIPASS, "ui/login_window.ui")
+    ui_main_path = os.path.join(sys._MEIPASS, "ui/main_window.ui")
 else:
-    ui_login_path = "login_window.ui"
-    ui_main_path = "main_window.ui"
+    ui_login_path = "ui/login_window.ui"
+    ui_main_path = "ui/main_window.ui"
 
 # Load the main UI elements.
 Ui_LoginWindow, QLoginWindow = uic.loadUiType(ui_login_path)
@@ -32,6 +32,7 @@ Ui_MainWindow, QMainWindow = uic.loadUiType(ui_main_path)
 
 class Lesson(object):
     def __init__(self, lesson_url, date, notes, topics):
+        # Initialize the lesson with certain attributed.
         self.lesson_url = lesson_url
         self.date = date.strftime("%D")
         self.notes = notes
@@ -40,6 +41,7 @@ class Lesson(object):
 
 class Student(object):
     def __init__(self, name, subject, tutor):
+        # Initialize the student with certain attributes.
         self.name = name
         self.first_name = str.split(name)[0]
         self.last_name = str.split(name)[-1]
@@ -50,6 +52,7 @@ class Student(object):
         self.topics = []
 
     def __str__(self):
+        # Format student's info as a string.
         st = "---------------\n"
         st += self.name + "\n"
         st += self.subject + "\n"
@@ -64,59 +67,72 @@ class Student(object):
             st += topic + "; "
         st += "\n\n"
 
+        # Return the string.
         return st
 
     def add_lesson(self, lesson):
+        # Add a lesson to the student current list of lessons.
         self.lessons.append(lesson)
 
     def get_topics(self):
+        # Grab all of the topics from the student's lessons.
         topics = []
         for lesson in self.lessons:
             topics.extend(lesson.topics)
 
+        # Return a list of topics
         return topics
 
 
-class RemoveButtonWidget(QtGui.QWidget):
+class RemovalButtonWidget(QtGui.QWidget):
     def __init__(self, parent, row):
+        # Initialize the button with certain attributes.
         self.parent = parent
         self.row = row
-        super(RemoveButtonWidget, self).__init__(parent)
+        super(RemovalButtonWidget, self).__init__(parent)
 
+        # Create the button and its icon.
+        self.button = QtGui.QPushButton()
+        self.button.setIcon(QIcon("gfx/x.png"))
+        self.button.clicked.connect(self.remove_row)
+
+        # Make sure the button is centered.
         layout = QtGui.QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
-
-        self.button = QtGui.QPushButton()
-        self.button.setIcon(QIcon("gfx/x.png"))
-        self.button.clicked.connect(self.removeRow)
         layout.addWidget(self.button)
-
         self.setLayout(layout)
 
-    def setRow(self, row):
+    def set_row(self, row):
+        # Set the number of a row.
         self.row = row
 
-    def removeRow(self):
+    def remove_row(self):
+        # Delete a row from the table.
         row = self.row
         self.parent.removeRow(row)
-        self.updateRows()
+        self.update_rows()
 
-    def updateRows(self):
+    def update_rows(self):
+        # Re-number all of the rows after a deletion takes place.
         nrows = self.parent.rowCount()
         for i in range(nrows):
-            self.parent.cellWidget(i, 0).setRow(i)
+            self.parent.cellWidget(i, 0).set_row(i)
             self.parent.setItem(i, 1, QtGui.QTableWidgetItem(str(i+1)))
 
 
 class LoginWindow(QLoginWindow, Ui_LoginWindow):
     def __init__(self, ):
+        # Initialize the login window.
         super(LoginWindow, self).__init__()
         self.setupUi(self)
         self.setWindowTitle("Mind Over Math Login")
-        self.email_field.setText("tpk.mindovermath@gmail.com")
-        self.password_field.setText("Redshift1!")
 
+        # Save email and password for later?
+        self.email_field.setText("")
+        self.password_field.setText("")
+
+        # Activate upon login.
         self.login_button.clicked.connect(self.login_button_clicked)
 
     def login_button_clicked(self):
@@ -149,6 +165,7 @@ class LoginWindow(QLoginWindow, Ui_LoginWindow):
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, ):
+        # Initialize the main window.
         super(MainWindow, self).__init__()
         self.setupUi(self)
         self.setWindowTitle("Saga")
@@ -241,7 +258,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.student_table.insertRow(row_position)
 
                 # Populate the row with relevant student info.
-                self.student_table.setCellWidget(i, 0, RemoveButtonWidget(self.student_table, i))
+                self.student_table.setCellWidget(i, 0, RemovalButtonWidget(self.student_table, i))
                 self.student_table.setItem(i, 1, QtGui.QTableWidgetItem(str(i+1)))
                 self.student_table.setItem(i, 2, QtGui.QTableWidgetItem(s.name))
                 self.student_table.setItem(i, 3, QtGui.QTableWidgetItem(s.subject))
